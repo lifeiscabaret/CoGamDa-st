@@ -1,14 +1,14 @@
-a = input("ì´ë¦„ì„ ì…ë ¥í•˜ì‹œìš”: ")
+a = input("ÀÌ¸§À» ÀÔ·ÂÇÏ½Ã¿ä: ")
 a = a.lower()
 
-b = int(input("ë‚˜ì´ë¥¼ ì…ë ¥í•˜ì„¸ìš”: "))
+b = int(input("³ªÀÌ¸¦ ÀÔ·ÂÇÏ¼¼¿ä: "))
 if b >= 20:
-    print(f"{a} ë‹˜ì€ ì„±ì¸ë‹ˆë‹¤.")
+    print(f"{a} ´ÔÀº ¼ºÀÎÀÔ´Ï´Ù.")
 else:
-    print(f"{a} ë‹˜ì€ ë¯¸ì„±ë…„ìì…ë‹ˆë‹¤.")
+    print(f"{a} ´ÔÀº ¹Ì¼º³âÀÚÀÔ´Ï´Ù.")
 
-price = int(input("ê°€ê²©ì„ ì…ë ¥í•´ì£¼ì„¸ìš”: "))
-discount_rate = 0.1 # 10% í• ì¸ìœ¨
+price = int(input("°¡°İÀ» ÀÔ·ÂÇØÁÖ¼¼¿ä: "))
+discount_rate = 0.1 # 10% ÇÒÀÎÀ²
 discount_price = price * discount_rate
 final_price = price - discount_price
-print(f"ìµœì¢… ê²°ì œ ê¸ˆì•¡ì€ {final_price}ì› ì…ë‹ˆë‹¤.")
+print(f"ÃÖÁ¾ °áÁ¦ ±İ¾×Àº {final_price}¿ø ÀÔ´Ï´Ù.")
