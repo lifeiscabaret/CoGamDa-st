@@ -41,7 +41,7 @@ print(f"생성된 ID: {user_id}")
 name = input("영문 이름을 입력하세요: ")
 
 user_id = ""
-for char in name.lower()[:6]:
+for char in name.lower()[:6]: #파이썬의 슬라이싱_범위를 지정하므로 길이가 6보다 짧으면 짧은대로 가져온다.
     user_id += char
 
 print(f"생성된 ID: {user_id}")
