@@ -84,49 +84,101 @@
 # # 루프가 다 끝난 '뒤에' 최종 결정된 found_label 과 문장을 출력
 # print(f"[{keyword_by_label}] {sentences}")
 
+# keyword_by_label = {
+#     "PAYMENT": ["pay", "card", "refund", "price"], 
+#     "ACCOUNT": ["login", "password", "signup", "account"],
+#     "BUG": ["error", "bug", "crash", "fail"],
+#     "OTHER": []    
+# }
+
+# # 1. N을 입력받는 while 루프(지금 코드에서 input 을 N 에 다시 담아줘야 함!)
+# while True:
+#     # ... 여기서 N 을 다시 입력받는 로직 필요
+#     N = int(input("정수를 입력하세요:"))
+#     if 1 <= N <= 20:
+#         break
+#         # 올바른 범위라면? 여기서 무한 루프를 끝냅니다.
+#     else:
+#         # 범위를 벗어났다면? 안내 메시지를 출력합니다.
+#         # 따로 명령하지 않아도 while 문의 처음으로 돌아가 다시 입력을 받게 됩니다.
+#         print(input("1에서 20 사이의 숫자를 입력해 주세요:"))
+
+# final_results = []
+# counts = {"PAYMENT": 0, "ACCOUNT": 0, "BUG": 0, "OTHER": 0}
+
+# # 2. 문장을 하나씩 처리하는 메인 루프
+# for i in range(N):
+#     raw_s = input() # 여기서 문장을 직접 입력받습니다.
+#     s = raw_s.strip().lower() # 즉시 전처리
+    
+#     if not s: # 비어있으면 무시
+#         continue
+    
+#     found_label = "OTHER"
+    
+#     # 3. 라벨 판정 로프(이 안에서 s 와 키워드를 비교)
+#     for label, keywords in keyword_by_label.items():
+#         if label == "OTHER": continue
+        
+#         # 힌트 'any'를 써서 keywords 중 하나라도 s 에 있는지 확인!
+#         if any(word in s for word in keywords):
+#             found_label = label
+#             break
+    
+#     counts[found_label] += 1
+    
+#     # 4. 판정 직후 바로 출력
+#     final_results.append(f"[{found_label}] {s}")
+#     print(counts[found_label])
+
 keyword_by_label = {
-    "PAYMENT": ["pay", "card", "refund", "price"], 
+    "PAYMENT": ["pay", "card", "refund", "price"],
     "ACCOUNT": ["login", "password", "signup", "account"],
     "BUG": ["error", "bug", "crash", "fail"],
-    "OTHER": []    
+    "OTHER": []
 }
 
-# 1. N을 입력받는 while 루프(지금 코드에서 input 을 N 에 다시 담아줘야 함!)
+# 1. N을 입력받는 while 루프
 while True:
-    # ... 여기서 N 을 다시 입력받는 로직 필요
     N = int(input("정수를 입력하세요:"))
     if 1 <= N <= 20:
         break
-        # 올바른 범위라면? 여기서 무한 루프를 끝냅니다.
     else:
-        # 범위를 벗어났다면? 안내 메시지를 출력합니다.
-        # 따로 명령하지 않아도 while 문의 처음으로 돌아가 다시 입력을 받게 됩니다.
-        print(input("1에서 20 사이의 숫자를 입력해 주세요:"))
+        # 안내 메시지를 출력하지만, 실제로는 input()을 다시 호출할 필요 없이 while 문 처음으로 돌아감
+        print("1에서 20 사이의 숫자를 입력해 주세요:")
 
-final_results = []
+final_results = [] # 각 문장의 분류 결과를 저장할 리스트
 counts = {"PAYMENT": 0, "ACCOUNT": 0, "BUG": 0, "OTHER": 0}
 
 # 2. 문장을 하나씩 처리하는 메인 루프
 for i in range(N):
     raw_s = input() # 여기서 문장을 직접 입력받습니다.
     s = raw_s.strip().lower() # 즉시 전처리
-    
+
     if not s: # 비어있으면 무시
         continue
-    
+
     found_label = "OTHER"
-    
-    # 3. 라벨 판정 로프(이 안에서 s 와 키워드를 비교)
+
+    # 3. 라벨 판정 루프(이 안에서 s 와 키워드를 비교)
     for label, keywords in keyword_by_label.items():
-        if label == "OTHER": continue
-        
-        # 힌트 'any'를 써서 keywords 중 하나라도 s 에 있는지 확인!
+        if label == "OTHER": continue # 'OTHER'는 다른 키워드가 없을 때 부여되므로 스킵
+
+        # 'any' 함수를 써서 keywords 중 하나라도 s 에 있는지 확인!
         if any(word in s for word in keywords):
             found_label = label
             break
-    
+
     counts[found_label] += 1
-    
-    # 4. 판정 직후 바로 출력
-    print(f"[{found_label}] {s}")
-    print(counts[found_label])
+    # 즉시 출력하는 대신, 결과를 리스트에 저장합니다.
+    final_results.append(f"[{found_label}] {s}")
+
+# 메인 루프가 끝난 후, 모든 결과와 요약을 출력
+for result_str in final_results:
+    print(result_str)
+
+# 최종 집계 결과를 포맷에 맞춰 출력합니다.
+summary_parts = []
+for label, count in counts.items():
+    summary_parts.append(f"{label}:{count}")
+print(" ".join(summary_parts))
