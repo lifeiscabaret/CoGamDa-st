@@ -1,0 +1,177 @@
+# Summary of Study - Week 2 - 2026-01-09
+#1
+if not n: 은 
+if n =="" 와 같은 기능이다.
+n은 문자열이 비어있다는 의미이다.
+
+#2
+list = [(a,[b]),(c,[d])]와 같은 함수가 있을때,
+내부의 요소를 표현하고 싶다면
+list[0][1][0] 과 같이 표현하면 된다.
+list[0] 은 (a,[b])를 의미하고 -> 튜플
+list[0][1] 은 [b]를 의미하고 -> b가 담긴 리스트
+list[0][1][0] 은 b를 의미한다. -> b 자체
+list[1][0] 이 c를 의미하는 방식.
+
+#3
+반복 중첩문에서 for 문 안에 break 가 들어가면
+어디에 있는 for 문을 빠져나가는지 주의해야 한다.
+가장 가까운 for 문을 빠져나가게 된다.
+
+#4
+num.isdigit() 함수는
+num 문자열이 숫자로만 이루어져 있는지 확인하는 함수이다.
+
+#5
+컴프리핸션(comprehension) 문법은
+리스트, 딕셔너리, 세트 등을 간결하게 생성하는 방법이다.
+
+예를 들어,
+words = ["apple", "banana", "apple", "orange", "banana"] 같은 리스트가 있을 때,
+
+a. 리스트 컴프리핸션: [담을 값 for 변수 in 반복가능객체 if 조건문]
+lst = [w for w in words if len(w) > 5] 이라면
+lst 는 ['apple', 'banana', 'apple', 'orange', 'banana'] 가 된다.
+
+b. 세트 컴프리핸션: {담을 값 for 변수 in 반복가능객체 if 조건문}
+리스트와 같지만 중복된 값을 제거한다.
+set = {w for w in words if len(w) > 5} 이라면
+set 는 {'banana', 'orange', 'apple'} 가 된다. (순서는 보장되지 않음)
+
+c. 딕셔너리 컴프리핸션: {키 값:밸류 값 for 변수 in 반복가능객체 if 조건문}
+dic = {w: len(w) for w in words if len(w) > 5} 이라면
+dic 은 {'apple': 5, 'banana': 6, 'orange': 6} 가 된다.
+
+셋 모두 if 조건문을 제외하고 사용할 수 있다.
+---
+cf. 
+lst = [w for w in words]가 표준적인 컴프리핸션의 형태인데,
+두 w는 다른 역할을 가진다.
+첫 번째 w는 리스트에 담길 값을 의미하고,
+두 번째 w는 반복문에서 각 요소를 의미한다.
+첫 번째 w를 바꾸면, 꺼낸 값을 가공해서 넣을 수도 있다.
+
+예를 들어,
+nums = [1, 2, 3]
+double_nums = [w* 2 for w in nums] 라면
+double_nums 는 [2, 4, 6] 가 된다.
+
+만약 무조건 0을 넣고 싶다면,
+zeros = [0 for w in nums] 라면
+zeros 는 [0, 0, 0] 가 된다.
+
+그렇다고 완전히 쌩뚱맞은 변수를 넣으면 에러가 난다.
+lst = [x for w in nums] # x가 정의되지 않았기 때문에 에러 발생
+---
+
+#6
+[]의 다른 용도
+a. 리스트 생성
+x = [1, 2, 3] #x라는 리스트 생성
+b. 인덱싱/ 키 접근
+y = {"name": "Alice", "age": 30}
+print(y["name"]) # "Alice" 출력
+
+
+#7 
+try ~ except 문법.
+에러가 발생해도 프로그램이 중단되지 않도록 예외 처리를 하는 방법이다.
+try:
+    # 에러가 발생할 수 있는 코드
+except SomeException:
+    # 에러가 발생했을 때 실행할 코드
+
+예를 들어,
+try:
+    num = int(input("숫자를 입력하세요: "))
+    result = 10 / num
+    print("결과:", result)
+except:
+    print("에러가 발생했습니다.")
+이렇게 하면 사용자가 잘못된 입력을 하더라도 프로그램이 중단되지 않고 적절한 메시지를 출력할 수 있다.
+
+아래와 같이 except: 대신에 파이썬 내장 예외 클래스를 명시할 수도 있다.
+except ValueError:
+    print("유효한 숫자를 입력하세요.")
+num을 int라고 정의했는데 int가 아닌 값을 입력했을 때처럼 불가능한 상황이 발생했을 때 처리.
+except ZeroDivisionError:
+    print("0으로 나눌 수 없습니다.")
+0을 입력해서 나눌 수 없을 때 발생하는 에러를 처리.
+이렇게 하면 어떤 종류의 에러가 발생했는지에 따라 다른 처리를 할 수 있다.
+
+
+#8 
+pass 와 continue 의 차이점
+pass 는 아무 일도 하지 않는 명령어로, 주로 문법적으로 문장이 필요하지만
+실제로는 아무 작업도 수행하지 않을 때 사용된다.
+continue 는 반복문 내에서 사용되며,
+현재 반복의 나머지 부분을 건너뛰고 루프의 맨 처음으로 점프한다.
+
+양 구문을 비교하자면
+a. pass 예시
+i = 0
+while i < 3:
+    i += 1
+    try:
+        # 억지로 에러 발생(예: 1을 0으로 나누기)
+        result = 1 / 0
+    except:
+        pass  # 에러가 발생해도 아무 작업도 하지 않고 계속 진행
+    print("현재 i 값:", i)
+    출력 : 현재 i 값: 1
+
+b. continue 예시
+i = 0
+while i < 3:
+    i += 1
+    try:
+        # 억지로 에러 발생(예: 1을 0으로 나누기)
+        result = 1 / 0
+    except:
+        continue  # 에러가 발생하면 현재 반복을 건너뛰고 다시 위로 이동
+    print("현재 i 값:", i)
+    출력 : (아무것도 출력되지 않음)
+
+
+#9
+zip()와 dict()
+a. zip()
+zip()은 여러 개의 반복 가능한 객체를 같은 인덱스끼리 묶어 하나의 튜플로 만들어주는 함수이다.
+zip(리스트1, 리스트2, 리스트3, ...) 형태로 사용된다.
+
+예를 들어,
+names = ["Alice", "Bob", "Charlie"]
+ages = [25, 30, 35]
+zipped = zip(names, ages)
+이렇게 하면 zipped 는
+[("Alice", 25), ("Bob", 30), ("Charlie", 35)] 와 같은 튜플의 리스트가 된다.
+
+for 문과 함께 여러 리스트를 동시에 순회할 때 자주 사용된다.
+for name, age in zip(names, ages):
+    print(name, age)
+
+출력 :
+Alice 25
+Bob 30
+Charlie 35
+---
+주의할 점은,
+zip()으로 만든 객체는 한 번 사용하면 소진된다는 것이다.
+z = zip([1, 2], [3, 4])
+
+print(list(z))  # 출력: [(1, 3), (2, 4)]
+print(list(z))  # 출력: [] # 이미 소진되었기 때문에 빈 리스트가 출력된다.
+
+이는 zip()이 이터레이터(iterator)를 반환하기 때문인데...
+하... 내 머리가 터질 것 같으니 다음에 알아 보기로 하자.
+---
+
+b. dict()
+dict() 함수는 키와 값을 짝지어 딕셔너리를 생성하는 함수이다.
+예를 들어,
+keys = ["name", "age", "city"]
+values = ["Alice", 30, "Seoul"]
+person = dict(zip(keys, values))
+이렇게 하면 person은 {"name": "Alice", "age": 30, "city": "Seoul"}이 된다.
+재밌는건 위 처럼 zip()객체를 딕셔너리나 리스트로 변환하여 따로 저장하면,
+나중에 person을 다시 사용할 수 있다는 것이다.
