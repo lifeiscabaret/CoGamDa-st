@@ -54,8 +54,16 @@ BUG = ["error", "bug", "crash", "fail"]
 OTHER = []
 LABLE = [PAYMENT, ACCOUNT, BUG, OTHER]
 
+while True:
+    try:
+        line_num = int(input("정수입력(1~20) : "))
+        if 1 <= line_num <= 20:
+            break
+        else:
+            print("범위에 맞게 다시 입력하세요")
+    except ValueError:
+        print("양식에 맞게 다시 입력하세요")
 
-line_num = int(input("정수입력 : "))
 i = 1
 line_list = []
 while True:
