@@ -1,13 +1,10 @@
-a = True
-while a:
+# # 딕셔너리 이용해서 만들어 본것
+while True:
     n = int(input("궁금하신 문의의 개수는 몇개이신가요?"))
     if 0<=n<=20:
         break
-
-
-
-# # 딕셔너리 이용해서 만들어 본것
-n = int(input("궁금하신 문의의 개수는 몇개이신가요?"))
+    else:
+        print("잘못된 입력입니다.")
 
 lst = []
 label = {'PAYMENT':['pay', 'card', 'refund', 'price'],
@@ -37,7 +34,13 @@ print(f"PAYMENT:{len(CS['PAYMENT'])} ACCOUNT:{len(CS['ACCOUNT'])} BUG:{len(CS['B
 
 # 딕셔너리 이용 안하고 배운것만 써서 만든것
 lst = []
-n = int(input("궁금하신 문의의 개수는 몇개이신가요?"))
+while True:
+    n = int(input("궁금하신 문의의 개수는 몇개이신가요?"))
+    if 0<=n<=20:
+        break
+    else:
+        print("잘못된 입력입니다.")
+        
 for _ in range(n):
     question = input("문의 내용을 영어로 적어주세요.")
     lst.append(question.strip().lower())
