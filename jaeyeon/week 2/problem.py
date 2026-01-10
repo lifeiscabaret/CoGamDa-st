@@ -48,22 +48,27 @@ PAYMENT:1 ACCOUNT:1 BUG:1 OTHER:1
 
 """
 
+# 전체적으로 필요 없던 파츠들과 중복 파츠들을 삭제하여 간결화 하였습니다.
+
+############### 1. 데이터셋 #####################################################################
+# 리스트를 활용해 필터 단어들을 설정합니다.
 PAYMENT = ["pay", "card", "refund", "price"]
 ACCOUNT = ["login", "password", "signup", "account"]
 BUG = ["error", "bug", "crash", "fail"]
-OTHER = []
-LABLE = [PAYMENT, ACCOUNT, BUG, OTHER]
 
+############### 2. 사용자입력부 #################################################################
+# 문장개수 설정부입니다. 입력받은 정수를 line_num 변수에 저장해 문장입력부의 반복횟수를 결정합니다.
 while True:
-    try:
+    try:  # 입력값 양식제한 적용
         line_num = int(input("정수입력(1~20) : "))
-        if 1 <= line_num <= 20:
+        if 1 <= line_num <= 20:  # 입력값 숫자범위제한 적용
             break
         else:
             print("범위에 맞게 다시 입력하세요")
     except ValueError:
         print("양식에 맞게 다시 입력하세요")
 
+# 문장입력부입니다. 입력한 문장을 line_list 리스트에 요소로 추가합니다.
 i = 1
 line_list = []
 while True:
@@ -73,28 +78,48 @@ while True:
     if i > line_num:
         break
 
+############### 3. 입력데이터전처리 및 통계처리 ###################################################
+# 변수 선언 및 초기화 구간
+line_list_lower = []
 new_line_list = []
-cnt_payment = 0
-cnt_account = 0
-cnt_bug = 0
-cnt_other = 0
-marker = ""
+cnt_payment = cnt_account = cnt_bug = cnt_other = (
+    0  # 변수에 공통된 값을 대입할 때는 한 줄로 처리가능합니다. 통계처리에 사용할 변수들의 초기화
+)
+marker = ""  # 문제의 요구사항대로 문장별 라벨을 붙일 때 사용할 변수 '마커'입니다.
+
+# 소문자 변환 및 양쪽 공백 제거구간. 복기하며 보니 양쪽공백제거도 깜빡했네요.
 for line in line_list:
+    line = line.lower().strip()
+    line_list_lower.append(
+        line
+    )  # 스그모임때 깜빡하고 적용하지 않았던 소문자처리 부분입니다. 변환된 소문자문장은 line_list_lower 리스트에 저장됩니다.
+
+# 라벨링 구간
+# 개인적인 개선사항
+# ㅁ. 단어별 라벨링 요소를 추가하였습니다.
+# ㅁ. 원본출력을 입력형태 그대로 보존하기 위해 .strip()을 활용한 양쪽공백제거는 line_list_lower에만 적용합니다.
+# ㅁ. 공백입력을 보존하고 [OTHER]라벨링에 소속되게 합니다.
+for line in line_list_lower:
     for word in PAYMENT:
         if word in line:
-            new_line = line.replace(word, f"[PAYMENT]{word}")
-            line = new_line
-            cnt_payment += 1
+            line = line.replace(
+                word, f"[PAYMENT]{word}"
+            )  # replace함수로 단어별 라벨을 적용합니다.
+            cnt_payment += 1  # 통계처리가 작동합니다
     for word in ACCOUNT:
         if word in line:
-            new_line = line.replace(word, f"[ACCOUNT]{word}")
-            line = new_line
-            cnt_account += 1
+            line = line.replace(
+                word, f"[ACCOUNT]{word}"
+            )  # replace함수로 단어별 라벨을 적용합니다.
+            cnt_account += 1  # 통계처리가 작동합니다
     for word in BUG:
         if word in line:
-            new_line = line.replace(word, f"[BUG]{word}")
-            line = new_line
-            cnt_bug += 1
+            line = line.replace(
+                word, f"[BUG]{word}"
+            )  # replace함수로 단어별 라벨을 적용합니다.
+            cnt_bug += 1  # 통계처리가 작동합니다
+
+    # 문제에서 요구한 우선순위에 따른 문장별 라벨링 적용구간입니다.
     if "[PAYMENT]" in line:
         marker = "[PAYMENT]"
     elif "[ACCOUNT]" in line:
@@ -102,24 +127,24 @@ for line in line_list:
     elif "[BUG]" in line:
         marker = "[BUG]"
     else:
-        marker = "[OTHER]"
-        cnt_other += 1
-    line = marker + " : " + line
-    new_line_list.append(line)
+        marker = "[OTHER]"  # 문장 안에 기설정된 라벨이 모두 없을 경우 [OTHER] 마커를 붙여 라벨링합니다
+        cnt_other += 1  # 통계처리가 작동합니다.
+    line = marker + " : " + line  # 최종출력에 사용할 문장이 line 변수에 저장됩니다.
+    new_line_list.append(
+        line
+    )  # 수정본출력에 사용할 리스트의 요소추가기능이 작동합니다.
 
-change_rule = dict(zip(line_list, new_line_list))
-changed_line_list = []
-for line in line_list:
-    if line in change_rule:
-        changed_line_list.append(change_rule[line])
-    else:
-        changed_line_list.append(line)
 
+############### 4. 출력부 #####################################################################
 print("--원본출력--")
 for line in line_list:
     print(line)
 print("--수정본출력---")
-for line in changed_line_list:
+for line in new_line_list:
     print(line)
-print("--레이블통계--")
-print(f"PAYMENT:{cnt_payment} ACCOUNT:{cnt_account} BUG:{cnt_bug} OTHER:{cnt_other}")
+print(
+    "--레이블통계--"
+)  # 통계 결과는 개인적으로 적용한 단어별 라벨링 기능으로 인해 예시문제의 답안과 차이가 있을것입니다.
+print(
+    f"PAYMENT:{cnt_payment} ACCOUNT:{cnt_account} BUG:{cnt_bug} OTHER:{cnt_other}"
+)  # 라벨링된 단어별 통계출력
