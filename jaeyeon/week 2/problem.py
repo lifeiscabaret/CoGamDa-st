@@ -87,15 +87,18 @@ cnt_payment = cnt_account = cnt_bug = cnt_other = (
 )
 marker = ""  # 문제의 요구사항대로 문장별 라벨을 붙일 때 사용할 변수 '마커'입니다.
 
-# 소문자 변환 구간
+# 소문자 변환 및 양쪽 공백 제거구간. 복기하며 보니 양쪽공백제거도 깜빡했네요.
 for line in line_list:
-    line = line.lower()
+    line = line.lower().strip()
     line_list_lower.append(
         line
     )  # 스그모임때 깜빡하고 적용하지 않았던 소문자처리 부분입니다. 변환된 소문자문장은 line_list_lower 리스트에 저장됩니다.
 
 # 라벨링 구간
-# 개인적인 개선사항으로 단어별 라벨링 요소를 추가하였습니다.
+# 개인적인 개선사항
+# ㅁ. 단어별 라벨링 요소를 추가하였습니다.
+# ㅁ. 원본출력을 입력형태 그대로 보존하기 위해 .strip()을 활용한 양쪽공백제거는 line_list_lower에만 적용합니다.
+# ㅁ. 공백입력을 보존하고 [OTHER]라벨링에 소속되게 합니다.
 for line in line_list_lower:
     for word in PAYMENT:
         if word in line:
