@@ -96,6 +96,4 @@ else:
             slowest_path = p
 
     # 마지막 결과 출력        
-    print(f"SLOWEST: {slowest_path} ({max_time}ms)")    
-    
-# 5차 시도
+    print(f"SLOWEST: {slowest_path} ({max_time}ms)")
