@@ -1,0 +1,34 @@
+ <!DOCTYPE html>
+ <html>
+ <head>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <title>메모 앱</title>
+    </head>
+ <body>
+    <div id="root"></div>
+    <script type="text/babel">
+        function App() {
+            // 1. 상태(State) 만들기: memos(리스트), title(입력값), content(입력값)
+            // 2. useEffect: 페이지 로드 시 fetch('/memos') 호출
+            // 3. fetchMemos 함수: GET 요청 후 결과를 setMemos 하기
+            // 4. addMemo 함수: POST /memos?title=... 호출 후 다시 fetchMemos 실행
+
+            return (
+                <div>
+                    <h1>메모 앱</h1>
+                    <input placeholder="제목" ... />
+                    <input placeholder="내용" ... />
+                    <button>추가</button>
+
+                    <ul>
+                        {/* 5. memos.map()을 써서 리스트 출력 */}
+                    </ul>
+                </div>
+            );
+        }
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+ </body>
+ </html>

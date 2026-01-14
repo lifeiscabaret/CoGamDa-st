@@ -1,5 +1,6 @@
 import sqlite3
 from fastapi import FastAPI
+from fastapi import HTTPException
 
 app = FastAPI()
 
@@ -12,13 +13,34 @@ def get_db_connection():
     return conn
 
 @app.get("/memos")
-async def read_memos ():
+async def read_memo():
     conn = get_db_connection()
-    rows = conn.execute("SELECT * FROM memos_id ORDER BY DESC").fetchall()
-    [dict(row) for row in rows]
-    return
+    rows = conn.execute("SELECT * FROM memos ORDER BY memo_id DESC").fetchall()
+    return [dict(row) for row in rows]
 
 @app.post("/memos")
+async def create_memo(title: str, content: str = ""):
+    # title: 필수 (str)
+    # content: 선택 (기본값 "")
+    conn = get_db_connection()
+    cursor = conn.cursor() # 볼펜을 꺼냅니다.
+    
+    if not title.strip():
+        raise HTTPException(status_code=400, detail="TITLEREQUIRED") 
+    
+    # SQL 명령 실행
+    cursor.execute(
+        "INSERT INTO memos (title, content) VALUES (?, ?)", (title, content)
+    )
+
+    # ⚠️ 중요! 저장을 확정 짓는 도장을 찍어야 합니다.
+    conn.commit()
+
+    # 방금 생성된 ID 가져오기
+    new_id = cursor.lastrowid
+
+    return {"memo_id": new_id, "title": title, "content": content}
+
 
 # 1. 연결 통로 열기
 conn = sqlite3.connect("app.db")
@@ -26,10 +48,10 @@ conn = sqlite3.connect("app.db")
 cur = conn.cursor()
 # 3. 볼펜으로 장부(DB)에 명령 적기(여기서 CREATE TABLE 실행!)
 cur.execute("""
-CREATE TABLE memos (
+CREATE TABLE IF NOT EXISTS memos (
     memo_id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT,
-    content TEXT,
+    content TEXT
 )
 """) 
 
