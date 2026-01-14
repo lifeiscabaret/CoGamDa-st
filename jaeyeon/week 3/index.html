@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8"/>
+        <title>memo webservice</title>
+        <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+        <script type="text/babel">
+            const API_BASE = "http://127.0.0.1:8000";
+
+            async function apiFetch(path, options = {}){
+                const res = await fetch(`${API_BASE}${path}`,{
+                    headers: {"Content-Type": "application/json"},
+                    ...options,
+                });
+                return await res.json().catch(()=>({}));
+            }
+
+            function App(){
+                const [memos, setMemos] = React.useState([]);
+                const [title, setTitle] = React.useState("");
+                const [checkedMemos, setCheckedMemos] = React.useState([]);
+                const [content, setContent] = React.useState(""); // content 상태 추가
+
+                async function loadMemos() {
+                    const data = await apiFetch('/memos');
+                    console.log(`데이터 업데이트: ${new Date().toLocaleTimeString()}`, "color: red");
+                    console.table(data)
+                    setMemos(data)
+                }
+
+                async function addMemo() {
+                    if (!title.trim()) return;
+                    await apiFetch(`/memos`, {
+                        method: 'POST',
+                        body: JSON.stringify({title, content}),});
+                    setTitle("");
+                    setContent("");  // content도 초기화
+                    await loadMemos();
+                }
+
+                async function delMemo(memo_id) {
+                    if(!confirm("정말 삭제할까요?")) return;
+                    await apiFetch(`/memos?id=${encodeURIComponent(memo_id)}`, {method: 'DELETE'});
+                    await loadMemos();
+                }
+
+                function handleCheckboxChange(memo_id) {
+                    setCheckedMemos(prevCheckedMemos => {
+                        if (prevCheckedMemos.includes(memo_id)) {
+                            return prevCheckedMemos.filter(id => id !== memo_id);  // 체크 해제
+                        } else {
+                            return [...prevCheckedMemos, memo_id];  // 체크
+                        }
+                    });
+                }
+
+                React.useEffect(()=>{loadMemos();}, [])
+
+                return (
+                    <div>
+                        <h1>메모장</h1>
+                        <div>
+                            <h3>목록</h3>
+                            <ul>
+                                {memos.map(memo=>(
+                                    <li key={memo.memo_id} style={{ listStyle: 'none' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={checkedMemos.includes(memo.memo_id)}
+                                            onChange={() => handleCheckboxChange(memo.memo_id)}
+                                        />
+                                        <span>{memo.title}</span>
+                                        <button onClick={()=>delMemo(memo.memo_id)}>삭제</button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div>
+                            <input value={title} onChange={(e)=>setTitle(e.target.value)} placeholder="제목입력"/>
+                            <button onClick={addMemo}>추가</button><br/>
+
+                            <textarea 
+                                value={content} 
+                                onChange={(e) => setContent(e.target.value)} 
+                                placeholder="내용입력" 
+                            />    
+                    
+                        </div>
+                        <div>
+                            {memos.filter(memo=> checkedMemos.includes(memo.memo_id))
+                                .map(memo => (
+                                <li key={memo.memo_id}>
+                                    <h4>{memo.title}</h4>
+                                    <p>{memo.content}</p>
+                                </li>
+                            ))} 
+                        </div>
+                    </div>
+                );
+            }
+
+            const root = ReactDOM.createRoot(document.getElementById('root'));
+            root.render(<App/>);
+        </script>
+    </head>
+    <body>
+        <div id="root"></div>
+    </body>
+</html>
