@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <title>메모 앱</title>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        function App() {
+            const [memos, setMemos] = React.useState([]);
+            const [title, setTitle] = React.useState("");
+            const [content, setContent] = React.useState("");
+            const [editingId, setEditingId] = React.useState(null); // 수정 중인 메모 ID 저장
+
+            // 1. 목록 불러오기
+            const fetchMemos = () => {
+                fetch('/memos')
+                    .then(res => res.json())
+                    .then(data => setMemos(data));
+            };
+
+            // 2. 메모 추가
+            const addMemo = () => {
+                if (!title.trim()) { alert("제목을 입력하세요!"); return; }
+                fetch(`/memos?title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}`, {
+                    method: 'POST'
+                }).then(res => {
+                    if (res.ok) { resetInputs(); fetchMemos(); }
+                });
+            };
+
+            // 3. 메모 수정 시작 (입력창에 데이터 채우기)
+            const startEdit = (memo) => {
+                setEditingId(memo.memo_id);
+                setTitle(memo.title);
+                setContent(memo.content);
+            };
+
+            // 4. 메모 수정 완료 (서버 전송)
+            const updateMemo = () => {
+                fetch(`/memos/${editingId}?title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}`, {
+                    method: 'PUT'
+                }).then(res => {
+                    if (res.ok) { resetInputs(); fetchMemos(); }
+                });
+            };
+
+            // 5. 메모 삭제
+            const deleteMemo = (id) => {
+                if (confirm("정말 삭제할까요?")) {
+                    fetch(`/memos/${id}`, { method: 'DELETE' })
+                        .then(res => { if (res.ok) fetchMemos(); });
+                }
+            };
+
+            const resetInputs = () => {
+                setEditingId(null);
+                setTitle("");
+                setContent("");
+            };
+
+            React.useEffect(() => { fetchMemos(); }, []);
+
+            return (
+                <div style={{ padding: "20px" }}>
+                    <h1>📝 메모 앱</h1>
+                    <div style={{ marginBottom: "20px" }}>
+                        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목" />
+                        <input value={content} onChange={(e) => setContent(e.target.value)} placeholder="내용" />
+                        {editingId ? (
+                            <span>
+                                <button onClick={updateMemo}>수정 완료</button>
+                                <button onClick={resetInputs}>취소</button>
+                            </span>
+                        ) : (
+                            <button onClick={addMemo}>추가</button>
+                        )}
+                    </div>
+
+                    <ul style={{ listStyle: "none", padding: 0 }}>
+                        {memos.map(m => (
+                            <li key={m.memo_id} style={{ borderBottom: "1px solid #ccc", padding: "10px 0" }}>
+                                <strong>{m.title}</strong>: {m.content}
+                                <div style={{ marginTop: "5px" }}>
+                                    <button onClick={() => startEdit(m)}>수정</button>
+                                    <button onClick={() => deleteMemo(m.memo_id)} style={{ color: "red" }}>삭제</button>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            );
+        }
+
+        // React 18 최신 렌더링 방식 적용 (콘솔 경고 해결)
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <title>심플 메모 앱</title>
+    <style>
+        body { background-color: #f5f7f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; margin: 0; padding: 40px; }
+        #root { width: 100%; max-width: 500px; }
+        .container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { color: #333; text-align: center; margin-bottom: 25px; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
+        input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; transition: border 0.3s; }
+        input:focus { border-color: #4a90e2; }
+        
+        button { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: opacity 0.2s; }
+        .btn-add { background-color: #4a90e2; color: white; }
+        .btn-edit { background-color: #2ecc71; color: white; margin-right: 5px; }
+        .btn-delete { background-color: #e74c3c; color: white; }
+        .btn-cancel { background-color: #95a5a6; color: white; }
+        button:hover { opacity: 0.8; }
+
+        .memo-list { list-style: none; padding: 0; margin-top: 20px; }
+        .memo-item { background: #fff; border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 12px; transition: transform 0.2s; }
+        .memo-item:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
+        .memo-title { display: block; font-size: 16px; font-weight: bold; color: #2c3e50; margin-bottom: 5px; }
+        .memo-content { color: #555; font-size: 14px; margin-bottom: 10px; display: block; }
+        .memo-actions { display: flex; justify-content: flex-end; gap: 8px; }
+        .memo-actions button { padding: 6px 12px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        function App() {
+            const [memos, setMemos] = React.useState([]);
+            const [title, setTitle] = React.useState("");
+            const [content, setContent] = React.useState("");
+            const [editingId, setEditingId] = React.useState(null);
+
+            const fetchMemos = () => {
+                fetch('/memos').then(res => res.json()).then(data => setMemos(data));
+            };
+
+            const addMemo = () => {
+                if (!title.trim()) { alert("제목을 입력하세요!"); return; }
+                fetch(`/memos?title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}`, {
+                    method: 'POST'
+                }).then(res => { if (res.ok) { resetInputs(); fetchMemos(); } });
+            };
+
+            const startEdit = (memo) => {
+                setEditingId(memo.memo_id);
+                setTitle(memo.title);
+                setContent(memo.content);
+            };
+
+            const updateMemo = () => {
+                fetch(`/memos/${editingId}?title=${encodeURIComponent(title)}&content=${encodeURIComponent(content)}`, {
+                    method: 'PUT'
+                }).then(res => { if (res.ok) { resetInputs(); fetchMemos(); } });
+            };
+
+            const deleteMemo = (id) => {
+                if (confirm("정말 삭제할까요?")) {
+                    fetch(`/memos/${id}`, { method: 'DELETE' }).then(res => { if (res.ok) fetchMemos(); });
+                }
+            };
+
+            const resetInputs = () => { setEditingId(null); setTitle(""); setContent(""); };
+
+            React.useEffect(() => { fetchMemos(); }, []);
+
+            return (
+                <div className="container">
+                    <h1>📝 My Memos</h1>
+                    
+                    <div className="input-group">
+                        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목을 입력하세요..." />
+                        <input value={content} onChange={(e) => setContent(e.target.value)} placeholder="내용을 입력하세요..." />
+                        {editingId ? (
+                            <div style={{display: 'flex', gap: '5px'}}>
+                                <button className="btn-edit" style={{flex: 1}} onClick={updateMemo}>수정 완료</button>
+                                <button className="btn-cancel" style={{flex: 1}} onClick={resetInputs}>취소</button>
+                            </div>
+                        ) : (
+                            <button className="btn-add" onClick={addMemo}>메모 추가하기</button>
+                        )}
+                    </div>
+
+                    <ul className="memo-list">
+                        {memos.map(m => (
+                            <li key={m.memo_id} className="memo-item">
+                                <span className="memo-title">{m.title}</span>
+                                <span className="memo-content">{m.content}</span>
+                                <div className="memo-actions">
+                                    <button className="btn-edit" onClick={() => startEdit(m)}>수정</button>
+                                    <button className="btn-delete" onClick={() => deleteMemo(m.memo_id)}>삭제</button>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
