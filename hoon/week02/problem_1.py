@@ -18,7 +18,7 @@ while True:
     if not n:
         continue
 
-    if not n.isdigit():
+    if not n.isdigit(): #??? 이해 ok, 다른 방법?
         continue
 
     N = int(n)
@@ -51,7 +51,7 @@ for _ in range(N):
     found = False
 
     for category_name, keywords in categories:
-        for key in keywords:
+        for key in keywords:    #내부 for문 어려움
             if key in lower_text:
                 label = category_name
                 found = True
@@ -76,11 +76,12 @@ for r in results:
 
 print(f"PAYMENT:{cnt_payment} ACCOUNT:{cnt_account} BUG:{cnt_bug} OTHER:{cnt_other}")
 
-#원하는 결과 값 아님
+#??? 원하는 결과 느낌 아님, 못찾겠음
 
 
 
-#가장 효율적인 코드 (셀프스터디용)
+# 효율적인 코드 (셀프스터디용)
+# try문 잘 쓰이지 않음
 '''
 import sys
 from collections import Counter

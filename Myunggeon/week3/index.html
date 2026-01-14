@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8"/> <!--유니코드 문자-->
+        <meta name = "viewport" content="width-device-width, initial-scale-1"/>
+        <title>🗄️메모장</title>
+        <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+        <!--React라이브러리: CDN에서 리액트를 불러옴-->
+        <!--Bable: JSX문법을 브라우저가 이해할 수 있는 자바스크립트로 변환해주는 도구-->
+
+        <script type = "text/babel">
+            const API_BASE = "http://127.0.0.1:8000";
+            async function apiFetch(path,option = {}) {
+                const res = await fetch(`${API_BASS}${path}`,{
+                    headers: {"Content-Type": "applicaion/json"}
+                });
+                
+                const data = await res.json().catch(()=>({}));
+
+                if (!res.ok){
+                    const msg = (data&&(data.detale || data.error)) ? (data.detail || data.error) : `HTTP${res.status}`;
+                    throw new Error(msg);
+                }
+                return data
+            }
+
+            //메인 컴포넌트
+            function App() {
+                const[memo, setMemo] = React.useState([]);
+                const[title, setTitle] = React.useState("");
+                const[content, setContent] = React.useState("");
+                const[loading, setLoading] = React.useState(false);
+
+                //메모 목록 불러오기
+                async function loadmemos(){
+                    try {
+                        const data = await apiFetch('/memos');
+                        setMemo(data);}
+                        catch(err) {
+                            consol.error (err);
+                            alert('리뷰를 불러오는데 실패했습니다.');
+                        }
+                    }
+
+                //처음 한번만 실행
+                }React.useEffect(()=>{loadmemos();},[]);
+
+                //메모 추가 함수
+            
+            </script>
+    </head>
+</html>

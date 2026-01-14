@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memo App</title>
+    
+    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // React 객체에서 필요한 훅(Hook) 기능 추출
+        const { useState, useEffect } = React;
+
+        // 2. 메인 컴포넌트 정의
+        function App() {
+            // --- [State] 상태 관리 (변수 선언) ---
+            
+            // memos: 서버에서 가져온 메모 리스트를 저장. 초기값은 빈 배열 []
+            const [memos, setMemos] = useState([]);
+            
+            // title: 사용자가 입력창에 적는 제목. 초기값은 빈 문자열 ""
+            const [title, setTitle] = useState("");
+            
+            // content: 사용자가 입력창에 적는 내용. 초기값은 빈 문자열 ""
+            const [content, setContent] = useState("");
+
+            // --- [Effect] 사이드 이펙트 관리 (초기 로드) ---
+            
+            // 컴포넌트가 화면에 처음 나타날 때(Mount) 딱 한 번 실행
+            // window.onload 와 비슷한 역할
+            useEffect(() => {
+                fetchMemos(); // 서버에 가서 목록을 가져와라!
+            }, []); // [] 의존성 배열이 비어있으므로 최초 1회만 실행
+
+            // --- [Function] 기능 구현 ---
+
+            // 1) 목록 조회 함수 (GET 요청)
+            const fetchMemos = async () => {
+                // FastAPI 서버의 주소로 데이터를 요청
+                const response = await fetch("http://localhost:8000/memos");
+                // 받아온 응답을 JSON 형태로 변환
+                const data = await response.json();
+                // 변환된 데이터를 memos 상태에 저장 (화면 업데이트)
+                setMemos(data);
+            };
+
+            // 2) 메모 추가 함수 (POST 요청)
+            const addMemo = async () => {
+                // 입력값 앞뒤의 불필요한 공백 제거
+                const trimmedTitle = title.trim();
+                const trimmedContent = content.trim();
+
+                // 유효성 검사: 제목이 비어있으면 경고창 띄우고 함수 종료
+                if (!trimmedTitle) {
+                    alert("TITLE REQUIRED");
+                    return;
+                }
+
+                // 서버로 데이터 전송
+                // 요구사항에 맞춰 Query Parameter 방식(?key=value)을 사용
+                // encodeURIComponent: 한글이나 특수문자가 깨지지 않도록 안전하게 변환
+                await fetch(`http://localhost:8000/memos?title=${encodeURIComponent(trimmedTitle)}&content=${encodeURIComponent(trimmedContent)}`, {
+                    method: "POST"
+                });
+
+                // 성공적으로 저장했다면, 입력창을 비운다
+                setTitle("");
+                setContent("");
+                
+                // [중요] DB에 새로운 데이터가 들어갔으니, 목록 다시 불러와 화면 업데이트
+                fetchMemos();
+            };
+
+            // --- [Render] 화면 그리기 (JSX) ---
+            return (
+                <div>
+                    <h1>Memo App</h1>
+                    
+                    {/* 제목 입력창: 사용자가 타이핑할 때마다 setTitle을 통해 상태를 업데이트 (Two-way binding) */}
+                    <input
+                        type="text"
+                        placeholder="Title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                    />
+                    <br />
+                    
+                    {/* 내용 입력창 */}
+                    <textarea
+                        placeholder="Content"
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                    ></textarea>
+                    <br />
+                    
+                    {/* 추가 버튼: 클릭 시 addMemo 함수 실행 */}
+                    <button onClick={addMemo}>Add Memo</button>
+                    
+                    <h2>Memo List</h2>
+                    <ul>
+                        {/* memos 배열을 순회하며 li 태그로 변환 (Map) */}
+                        {memos.map((memo) => (
+                            // key: 리액트가 리스트를 효율적으로 관리하기 위해 고유 ID 필요
+                            <li key={memo.memo_id}>
+                                <strong>{memo.title}</strong>: {memo.content}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            );
+        }
+
+        // 3. 리액트 실행
+        // 작성한 App 컴포넌트를 HTML의 'root' div 안에 그린다
+        ReactDOM.render(<App />, document.getElementById("root"));
+    </script>
+</body>
+</html>
