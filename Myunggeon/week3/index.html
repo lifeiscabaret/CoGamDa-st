@@ -4,66 +4,86 @@
         <meta charset="utf-8"/> <!--유니코드 문자-->
         <meta name = "viewport" content="width=device-width, initial-scale=1"/>
         <title>🗄️메모장</title>
+
+        <!--React라이브러리: CDN에서 리액트를 불러옴-->
         <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
         <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-        <!--React라이브러리: CDN에서 리액트를 불러옴-->
+        
         <!--Bable: JSX문법을 브라우저가 이해할 수 있는 자바스크립트로 변환해주는 도구-->
-
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+        
+        
         <script type = "text/babel">
+            // FastAPI 서버 주소 설정
             const API_BASE = "http://127.0.0.1:8000";
+            /**
+             * API 호출을 위한 공통 함수
+             * @param {string} path - API 경로 (예: '/memos')
+             * @param {object} options - fetch 옵션 (method, body 등)
+             * @returns {Promise} - JSON 응답 데이터
+             */
             async function apiFetch(path,options = {}) {
+                // fetch로 API요청 보내
                 const res = await fetch(`${API_BASE}${path}`,{
-                    headers: {"Content-Type": "application/json"},
-                    ...options,
+                    headers: {"Content-Type": "application/json"}, // JSON 형식으로 보낸다고 명시
+                    ...options, //추가 옵션 (method, body 등) 병합
 
                 });
                 
+                // 응답을 JSON으로 변환 (실패하면 빈 객체 반환)
                 const data = await res.json().catch(()=>({}));
 
+                // 응답이 실패(4xx, 5xx)인 경우 에러 던지기
                 if (!res.ok){
                     const msg = (data&&(data.detail || data.error)) ? (data.detail || data.error) : `HTTP${res.status}`;
                     throw new Error(msg);
                 }
-                return data;
+                return data; // 성공 시 데이터 반환
             }
 
             //메인 컴포넌트
+            //메모장의 전체 UI와 로직을 담
             function App() {
-                const[memos, setMemos] = React.useState([]);
-                const[title, setTitle] = React.useState("");
-                const[content, setContent] = React.useState("");
-                const[loading, setLoading] = React.useState(false);
+                // React 상태(state) 선언
+                const[memos, setMemos] = React.useState([]); // 메모 목록
+                const[title, setTitle] = React.useState(""); // 제목 입력값
+                const[content, setContent] = React.useState(""); // 내용 입력값
+                const[loading, setLoading] = React.useState(false); // 로딩 상태 (중복 클릭 방지)
 
-                //메모 목록 불러오기
+                //서버에서 메모 목록 불러오기
                 async function loadMemos(){
                     try {
-                        const data = await apiFetch('/memos');
-                        setMemos(data);}
+                        const data = await apiFetch('/memos'); // GET /memos 호출
+                        setMemos(data);} // 받아온 데이터로 상태 업데이트
                         catch(err) {
-                            console.error (err);
+                            console.error (err); // 콘솔에 에러 출력
                             alert('리뷰를 불러오는데 실패했습니다.');
                         }
                     }
 
-                //처음 한번만 실행
-                React.useEffect(()=>{loadMemos();},[]);
+                // useEffect: 컴포넌트가 처음 화면에 나타날 떄 한번만 실
+                //빈 배열 []은 "처음 한 번만 실행"을 의미
+                React.useEffect(()=>{
+                    loadMemos();// 앱 시작 시 메모 목록 불러오기
+                },[]);
 
-                //메모 추가 함수
+                //새 메모 추가 함수
                 async function addMemo() {
-                    const t = title.trim();
-                    const c = content.trim();
+                    const t = title.trim(); // 제목 앞뒤 공백 제거
+                    const c = content.trim(); // 내용 앞뒤 공백 제거
 
+                    // 제목이나 내용이 비어있으면 경고
                     if (!t||!c) {
                         alert('제목과 내용을 입력해주세요!');
                         return;
                     }
 
-                    setLoading(true);
+                    setLoading(true); // 로딩 시작 (버튼 비활성화)
                     try{
+                        // POST /memos 호출하여 메모 생성
                         await apiFetch('/memos',{
                             method: "POST",
-                            body: JSON.stringify({
+                            body: JSON.stringify({ // 객체를 JSON 문자열로 변환
                                 title: t,
                                 content: c
                             })
@@ -73,16 +93,18 @@
                         setTitle("");
                         setContent("");
                         
+                        //메모 목록 새로고침
                         await loadMemos();
 
                     } catch (err){
                         console.error(err);
                         alert('리뷰 추가에 실패했습니다.');
                     } finally{
-                        setLoading(false);
+                        setLoading(false); //로딩 종료 (성공/실패 상관없이 실행)
                     }
                 }
 
+                //JSX로 UI구성
                 return (
                     <div>
                         <h1>메모장</h1>
@@ -95,44 +117,49 @@
                             <label>제목:</label>
                                 <input
                                     type = "text"
-                                    value = {title}
-                                    onChange={e => setTitle(e.target.value)}
+                                    value = {title} // 제목 상태와 연결
+                                    onChange={e => setTitle(e.target.value)} // 입력할 때마다 상태 업데이트
                                     placeholder="제목을 입력하세요"
                                 />
                         </div>
                            
+                            {/*내용 입력*/}
                             <div>
                                 <label>내용:</label>
                                 <textarea
-                                    value={content}
-                                    onChange={e => setContent(e.target.value)}
+                                    value={content} //내용 상태와 연
+                                    onChange={e => setContent(e.target.value)} // 입력할 때마다 상태 업데이트
                                     placeholder="내용을 작성하세요"
-                                    rows="4" 
+                                    rows="4" // 텍스트 영역의 초기 높이(4줄)
                                 />
-                            </div> {/*rows : 내용 입력 창이 처음에 보여줄 세로줄 수*/}
+                            </div> 
 
+                            {/*메모 추가 버튼*/}
                             <button
-                                onClick={addMemo}
-                                disabled={loading}
+                                onClick={addMemo} // 클릭 시 addMemo 함수 실행
+                                disabled={loading} // 로딩 중에는 버튼 비활성
                                 style={{backgroundColor: '#4CAF50', color: 'white'}}
                             >
-                                {loading ? '추가 중...': '메모 추가'}
+                                {loading ? '추가 중...': '메모 추가'} {/* 로딩 상태에 따라 텍스트 변경 */}
                             </button>
                     
 
                         <h2>전체 메모 ({memos.length}개)</h2>
                         
+                        {/* 삼항 연산자: 메모가 없으면 안내 메시지, 있으면 목록 표시 */}
                         {memos.length === 0? (
                             <p> 아직 메모가 없습니다. 첫 메모를 작성해 보세요!</p>
                         ) : (
+                            // map: 배열의 각 항목을 JSX로 변환
                             memos.map(memo => (
-                                <div key = {memo.id}
-                                className = 'memo-item'>
+                                <div key = {memo.id} // React가 각 항목을 구별하기 위한 고유 key (필수!)
+                                className = 'memo-item'
+                                >
                                     <h3>{memo.title}</h3>
                                     <p>{memo.content}</p>
                                     <br/>
                                     <button
-                                    onClick={()=>deleteMemo(memo.id)}
+                                    onClick={()=>deleteMemo(memo.id)} // 삭제 함수 호출 (현재 미구현)
                                     style= {{backgroundColor: '#f44336', color: 'white'}}
 
                                     >
@@ -148,14 +175,13 @@
                 );
             }
 
-                //리액트 앱 실행
+                // React 앱을 실제 HTML에 렌더링
                 const root = ReactDOM.createRoot(document.getElementById('root'));
-                root.render(<App/>);
-                
-        
+                root.render(<App/>); // App 컴포넌트를 그 안에 그리기
             </script>
     </head>
     <body>
+        <!-- React 앱이 렌더링될 위치 -->
         <div id = "root"></div>
     </body>
 </html>
