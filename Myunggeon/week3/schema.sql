@@ -8,7 +8,7 @@ CREATE TABLE memo (
 
 --삽입 쿼리
 INSERT INTO memo (title, content)
-VALUES ('오늘 배우 내용', 'AI 서비스');
+VALUES ('오늘 배운 내용', 'AI 서비스');
 
 INSERT INTO memo (title, content)
 VALUES ('기억할 거', 'SQlite, React 사용법')

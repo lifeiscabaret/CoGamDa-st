@@ -2,7 +2,7 @@
 <html lang="ko">
     <head>
         <meta charset="utf-8"/> <!--유니코드 문자-->
-        <meta name = "viewport" content="width-device-width, initial-scale-1"/>
+        <meta name = "viewport" content="width=device-width, initial-scale=1"/>
         <title>🗄️메모장</title>
         <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
         <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -12,43 +12,150 @@
 
         <script type = "text/babel">
             const API_BASE = "http://127.0.0.1:8000";
-            async function apiFetch(path,option = {}) {
-                const res = await fetch(`${API_BASS}${path}`,{
-                    headers: {"Content-Type": "applicaion/json"}
+            async function apiFetch(path,options = {}) {
+                const res = await fetch(`${API_BASE}${path}`,{
+                    headers: {"Content-Type": "application/json"},
+                    ...options,
+
                 });
                 
                 const data = await res.json().catch(()=>({}));
 
                 if (!res.ok){
-                    const msg = (data&&(data.detale || data.error)) ? (data.detail || data.error) : `HTTP${res.status}`;
+                    const msg = (data&&(data.detail || data.error)) ? (data.detail || data.error) : `HTTP${res.status}`;
                     throw new Error(msg);
                 }
-                return data
+                return data;
             }
 
             //메인 컴포넌트
             function App() {
-                const[memo, setMemo] = React.useState([]);
+                const[memos, setMemos] = React.useState([]);
                 const[title, setTitle] = React.useState("");
                 const[content, setContent] = React.useState("");
                 const[loading, setLoading] = React.useState(false);
 
                 //메모 목록 불러오기
-                async function loadmemos(){
+                async function loadMemos(){
                     try {
                         const data = await apiFetch('/memos');
-                        setMemo(data);}
+                        setMemos(data);}
                         catch(err) {
-                            consol.error (err);
+                            console.error (err);
                             alert('리뷰를 불러오는데 실패했습니다.');
                         }
                     }
 
                 //처음 한번만 실행
-                }React.useEffect(()=>{loadmemos();},[]);
+                React.useEffect(()=>{loadMemos();},[]);
 
                 //메모 추가 함수
-            
+                async function addMemo() {
+                    const t = title.trim();
+                    const c = content.trim();
+
+                    if (!t||!c) {
+                        alert('제목과 내용을 입력해주세요!');
+                        return;
+                    }
+
+                    setLoading(true);
+                    try{
+                        await apiFetch('/memos',{
+                            method: "POST",
+                            body: JSON.stringify({
+                                title: t,
+                                content: c
+                            })
+                        });
+
+                        //입력창 초기화
+                        setTitle("");
+                        setContent("");
+                        
+                        await loadMemos();
+
+                    } catch (err){
+                        console.error(err);
+                        alert('리뷰 추가에 실패했습니다.');
+                    } finally{
+                        setLoading(false);
+                    }
+                }
+
+                return (
+                    <div>
+                        <h1>메모장</h1>
+
+                        {/*메모 작성 폼*/}
+                        <h2>메모 작성</h2>
+
+                        {/*input창 안의 text*/}
+                        <div> 
+                            <label>제목:</label>
+                                <input
+                                    type = "text"
+                                    value = {title}
+                                    onChange={e => setTitle(e.target.value)}
+                                    placeholder="제목을 입력하세요"
+                                />
+                        </div>
+                           
+                            <div>
+                                <label>내용:</label>
+                                <textarea
+                                    value={content}
+                                    onChange={e => setContent(e.target.value)}
+                                    placeholder="내용을 작성하세요"
+                                    rows="4" 
+                                />
+                            </div> {/*rows : 내용 입력 창이 처음에 보여줄 세로줄 수*/}
+
+                            <button
+                                onClick={addMemo}
+                                disabled={loading}
+                                style={{backgroundColor: '#4CAF50', color: 'white'}}
+                            >
+                                {loading ? '추가 중...': '메모 추가'}
+                            </button>
+                    
+
+                        <h2>전체 메모 ({memos.length}개)</h2>
+                        
+                        {memos.length === 0? (
+                            <p> 아직 메모가 없습니다. 첫 메모를 작성해 보세요!</p>
+                        ) : (
+                            memos.map(memo => (
+                                <div key = {memo.id}
+                                className = 'memo-item'>
+                                    <h3>{memo.title}</h3>
+                                    <p>{memo.content}</p>
+                                    <br/>
+                                    <button
+                                    onClick={()=>deleteMemo(memo.id)}
+                                    style= {{backgroundColor: '#f44336', color: 'white'}}
+
+                                    >
+                                        삭제
+                                    </button>
+                                </div>
+
+                            ))
+
+                        )}
+
+                    </div>
+                );
+            }
+
+                //리액트 앱 실행
+                const root = ReactDOM.createRoot(document.getElementById('root'));
+                root.render(<App/>);
+                
+        
             </script>
     </head>
+    <body>
+        <div id = "root"></div>
+    </body>
 </html>
