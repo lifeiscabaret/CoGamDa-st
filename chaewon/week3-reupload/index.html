@@ -50,7 +50,7 @@
 
                 // 성공적으로 저장되었다면
                 if (response.ok) {
-                    // 입력창 초기화 및 목록 최신화 (성공 시)
+                    // 성공 시 입력창 초기화 및 목록 최신화
                     setTitle("");
                     setContent("");
                     fetchMemos();
@@ -62,14 +62,14 @@
                 <div style={{ padding: "20px" }}>
                     <h1>Mini Memo App</h1>
                     
-                    {/* 제목 입력창: 글자를 칠 때마다 setTitle이 작동해 title 값을 바꾼다. */}
+                    {/* 제목 입력창: 글자를 칠 때마다 setTitle이 작동, title 값을 바꾼다. */}
                     <input 
                         type="text" 
                         placeholder="제목(title)" 
                         value={title} 
                         onChange={(e) => setTitle(e.target.value)} 
                     />
-                    {/* 내용 입력창: 글자를 칠 때마다 setContent가 작동해 content 값을 바꾼다. */}
+                    {/* 내용 입력창: 글자를 칠 때마다 setContent가 작동, content 값을 바꾼다. */}
                     <input 
                         type="text" 
                         placeholder="내용(content)" 

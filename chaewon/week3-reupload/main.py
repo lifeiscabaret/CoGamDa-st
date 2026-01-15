@@ -1,8 +1,6 @@
-# Week3
-
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse # FastAPI의 응답 도구들 중 파일을 전송하기 위한 전용 도구(FileResponse)를 가져온다.
+from fastapi.responses import FileResponse # FastAPI의 응답 도구들 중, '파일'을 전송하기 위한 전용 도구(FileResponse)를 가져온다.
 import sqlite3
 from pathlib import Path
 from contextlib import asynccontextmanager
@@ -14,7 +12,7 @@ DB_PATH = Path("app.db")
 def init_db():
     # 데이터베이스 파일에 연결(없으면 새로 만든다.)
     conn = sqlite3.connect(DB_PATH)
-    # SQL 명령어를 실행하기 위한 커서(일꾼)를 만드는 것.
+    # SQL 명령어를 실행하기 위한 '커서(일꾼)'를 만드는 것.
     cur = conn.cursor()
     # 테이블명 memo, 컬럼명 memo_id, title, content (과제 내용 중 2)메모추가 - 응답 형태 예시를 따름.)
     cur.execute('''
@@ -93,11 +91,11 @@ def create_memo(
 
     conn = get_db()
     cur = conn.cursor()
-    # 제목과 내용을 테이블에 삽입(INSERT)한다. ?는 보안을 위한 빈칸이다.
+    # 제목과 내용을 테이블에 삽입(INSERT)한다. ?는 보안을 위한 빈 칸.
     cur.execute("INSERT INTO memo (title, content) VALUES (?, ?)", (title, content))
     conn.commit()
     
-    # 방금 저장된 데이터의 ID(번호)를 가져온다.
+    # 방금 저장된 데이터의 ID를 가져온다.
     new_id = cur.lastrowid
     conn.close()
     
