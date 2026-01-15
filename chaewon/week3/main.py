@@ -1,3 +1,5 @@
+# Week3
+
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse # FastAPI의 응답 도구들 중 파일을 전송하기 위한 전용 도구(FileResponse)를 가져온다.
