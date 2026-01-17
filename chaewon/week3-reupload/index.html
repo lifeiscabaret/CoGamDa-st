@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <title>Mini Memo App</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        function App() {
+            // 1. 상태 관리(useState)
+            // useState란? 화면에서 변하는 데이터를 저장하는, 화면과 연결된 특수 저장소
+            const [memos, setMemos] = React.useState([]);
+            const [title, setTitle] = React.useState("");
+            // 메모 내용(content)를 담을 상자를 만들고 그 상자를 관리할 전용 도구(setContent)를 준비해라
+            const [content, setContent] = React.useState("");
+
+            // 2. 서버에서 메모 목록을 가져오는 함수
+            const fetchMemos = async () => {
+                // 백엔드 서버의 /memos 주소로 데이터를 달라고 요청한다.
+                const response = await fetch("/memos");
+                // 서버가 보내준 데이터를 자바스크립트 객체(json)로 변환한다.
+                const data = await response.json();
+                // 가져온 데이터를 memos 상태에 저장하여 화면에 보이게 한다.
+                setMemos(data);
+            };
+
+            // 3. 페이지 로드 시 최초 1회 실행(useEffect)
+            React.useEffect(() => {
+                fetchMemos();
+            }, []);
+
+            // 4. 추가 버튼 클릭 시 실행되는 함수
+            const handleAddMemo = async () => {
+                // 제목과 내용의 양쪽 공백을 제거
+                const cleanTitle = title.trim();
+                const cleanContent = content.trim();
+
+                const url = `/memos?title=${encodeURIComponent(cleanTitle)}&content=${encodeURIComponent(cleanContent)}`;
+                // POST 호출(과제내용 중 2)메모추가 입력:Query Parameter 방식)
+                // POST 방식으로 서버에 데이터를 전송한다.
+                const response = await fetch(url, { method: "POST" });
+
+                // 서버가 400 에러(제목 없음)를 보내면 경고창을 띄운다.
+                if (response.status === 400) {
+                    alert("제목은 필수입니다.");
+                    return;
+                }
+
+                // 성공적으로 저장되었다면
+                if (response.ok) {
+                    // 성공 시 입력창 초기화 및 목록 최신화
+                    setTitle("");
+                    setContent("");
+                    fetchMemos();
+                }
+            };
+
+            // 실제 눈에 보이는 화면 구성
+            return (
+                <div style={{ padding: "20px" }}>
+                    <h1>Mini Memo App</h1>
+                    
+                    {/* 제목 입력창: 글자를 칠 때마다 setTitle이 작동, title 값을 바꾼다. */}
+                    <input 
+                        type="text" 
+                        placeholder="제목(title)" 
+                        value={title} 
+                        onChange={(e) => setTitle(e.target.value)} 
+                    />
+                    {/* 내용 입력창: 글자를 칠 때마다 setContent가 작동, content 값을 바꾼다. */}
+                    <input 
+                        type="text" 
+                        placeholder="내용(content)" 
+                        value={content} 
+                        onChange={(e) => setContent(e.target.value)} 
+                    />
+                    
+                    {/* 버튼 1개 */}
+                    <button onClick={handleAddMemo}>추가</button>
+                    
+                    <hr />
+
+                    {/* 메모 목록 출력 영역 */}
+                    <ul>
+                        {memos.map((memo) => (
+                            <li key={memo.memo_id}>
+                                <strong>[{memo.title}]</strong> {memo.content}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</head>
+<body>
+    <div id="root"></div>
+</body>
+</html>
